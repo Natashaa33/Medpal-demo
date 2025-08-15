@@ -1,9 +1,9 @@
 import streamlit as st
 from datetime import datetime
-import openai
+from openai import OpenAI
 
-# Use Streamlit Secrets (set on Streamlit Cloud) — safer than hardcoding
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Initialize OpenAI client
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.set_page_config(page_title="MedPal", page_icon="💊")
 st.title("MedPal - AI Health Companion")
@@ -24,11 +24,13 @@ if st.button("Log Symptom"):
 # AI Chatbot
 st.subheader("Ask MedPal")
 question = st.text_input("Type your health question")
-if st.button("Ask") and question.strip():
-    # Using OpenAI Python SDK v0.28 (ChatCompletion)
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": question}]
-    )
-    answer = response['choices'][0]['message']['content']
-    st.info(answer)
+if st.button("Ask"):
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": question}]
+        )
+        answer = response.choices[0].message.content
+        st.info(answer)
+    except Exception as e:
+        st.error(f"Error: {e}")
