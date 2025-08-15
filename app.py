@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 from openai import OpenAI
 
-# Initialize OpenAI client
+# Initialize OpenAI client (reads key from Streamlit secrets)
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.set_page_config(page_title="MedPal", page_icon="💊")
