@@ -6,9 +6,9 @@ import requests
 st.set_page_config(page_title="MedPal", page_icon="💊")
 st.title("MedPal - AI Health Companion")
 
-# Hugging Face API setup
+# ---------------- Hugging Face API setup ----------------
 HF_API_KEY = st.secrets.get("HF_API_KEY", "")
-API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+API_URL = "https://api-inference.huggingface.co/models/gpt2"  # Free model
 HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
 
 def query_hf(prompt):
@@ -24,7 +24,7 @@ def query_hf(prompt):
     else:
         return f"Error: {response.status_code} - {response.text}"
 
-# Initialize session state lists for logs
+# ---------------- Session State Initialization ----------------
 if "med_logs" not in st.session_state:
     st.session_state.med_logs = []
 
