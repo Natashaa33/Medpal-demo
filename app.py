@@ -1,10 +1,21 @@
 import streamlit as st
 from datetime import datetime
-from openai import OpenAI
+import requests
+import os
 
-# Initialize OpenAI client (reads key from Streamlit secrets)
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# Hugging Face API setup
+HF_API_KEY = st.secrets.get("HF_API_KEY", "")  # Store key in Streamlit secrets for safety
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
 
+def query_hf(prompt):
+    response = requests.post(API_URL, headers=HEADERS, json={"inputs": prompt})
+    if response.status_code == 200:
+        return response.json()[0]['generated_text']
+    else:
+        return f"Error: {response.status_code} - {response.text}"
+
+# Streamlit UI
 st.set_page_config(page_title="MedPal", page_icon="💊")
 st.title("MedPal - AI Health Companion")
 
@@ -25,12 +36,8 @@ if st.button("Log Symptom"):
 st.subheader("Ask MedPal")
 question = st.text_input("Type your health question")
 if st.button("Ask"):
-    try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": question}]
-        )
-        answer = response.choices[0].message.content
+    if not HF_API_KEY:
+        st.error("No Hugging Face API key found. Please add it to Streamlit Secrets.")
+    else:
+        answer = query_hf(question)
         st.info(answer)
-    except Exception as e:
-        st.error(f"Error: {e}")
